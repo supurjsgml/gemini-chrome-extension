@@ -1,0 +1,131 @@
+{
+  "appName": {
+    "message": "Gemini AI Web Agent"
+  },
+  "appDesc": {
+    "message": "Analyze webpages and autofill forms using Gemini AI."
+  },
+  "openAgent": {
+    "message": "Open Gemini Web Agent"
+  },
+  "toggleAgent": {
+    "message": "Open/Close Gemini Agent"
+  },
+  "modelLabel": {
+    "message": "AI Model"
+  },
+  "sourceLabel": {
+    "message": "Analysis Data Source"
+  },
+  "sourceSelection": {
+    "message": "Selected Text"
+  },
+  "sourcePage": {
+    "message": "Entire Page Content"
+  },
+  "sourceDirect": {
+    "message": "Direct Input"
+  },
+  "directInputPlaceholder": {
+    "message": "Type or paste the text to analyze here..."
+  },
+  "promptLabel": {
+    "message": "Instruction (Prompt)"
+  },
+  "promptPlaceholder": {
+    "message": "e.g. Write this design in a report format"
+  },
+  "generateBtn": {
+    "message": "AI Analyze & Generate"
+  },
+  "generatingState": {
+    "message": "Analyzing..."
+  },
+  "resultPreviewLabel": {
+    "message": "AI Summary Result Preview"
+  },
+  "editToggleEdit": {
+    "message": "Edit"
+  },
+  "editToggleDone": {
+    "message": "Done"
+  },
+  "applyBtn": {
+    "message": "✨ Autofill Focused Input"
+  },
+  "statusConnecting": {
+    "message": "Connecting"
+  },
+  "statusConnected": {
+    "message": "Connected"
+  },
+  "statusDisconnected": {
+    "message": "Disconnected"
+  },
+  "noActiveTab": {
+    "message": "Active tab not found."
+  },
+  "failedToReadPage": {
+    "message": "Failed to read page content. Page reload might be required."
+  },
+  "noTextToAnalyze": {
+    "message": "No text to analyze."
+  },
+  "analyzingProgress": {
+    "message": "Gemini analysis in progress..."
+  },
+  "generationSuccess": {
+    "message": "Text generated successfully!"
+  },
+  "backendError": {
+    "message": "Error occurred during backend analysis."
+  },
+  "serverConnectionFailed": {
+    "message": "Server communication failed: "
+  },
+  "injectionFailed": {
+    "message": "Text injection failed: content script error"
+  },
+  "autofillSuccess": {
+    "message": "Autofilled successfully into the focused input!"
+  },
+  "autofillNoFocus": {
+    "message": "Focused input field not found."
+  },
+  "injectionError": {
+    "message": "Injection error: "
+  },
+  "noSelectionText": {
+    "message": "No text selected. Try Entire Page mode."
+  },
+  "noPageText": {
+    "message": "No page content retrieved. Try reloading the page or using Direct Input."
+  },
+  "presetChips": {
+    "message": "Presets"
+  },
+  "presetSummaryLabel": {
+    "message": "📝 Summary"
+  },
+  "presetSummaryPrompt": {
+    "message": "Summarize the core content of this webpage clearly in 3 bullet points."
+  },
+  "presetReportLabel": {
+    "message": "📊 Report"
+  },
+  "presetReportPrompt": {
+    "message": "Organize this design detail or work content into a formal report format (overview, content, expected effects)."
+  },
+  "presetEmailLabel": {
+    "message": "✉️ Email"
+  },
+  "presetEmailPrompt": {
+    "message": "Based on this body content, write a polite and concise email reply draft."
+  },
+  "presetBugLabel": {
+    "message": "🔍 Bug Report"
+  },
+  "presetBugPrompt": {
+    "message": "Analyze the details of this webpage and organize them into a bug report format (reproduction steps, expected result) for development."
+  }
+}
