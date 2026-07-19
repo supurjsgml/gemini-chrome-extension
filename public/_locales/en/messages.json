@@ -51,7 +51,7 @@
     "message": "Done"
   },
   "applyBtn": {
-    "message": "✨ Autofill Focused Input"
+    "message": "Autofill Focused Input"
   },
   "statusConnecting": {
     "message": "Connecting"
@@ -104,26 +104,29 @@
   "presetChips": {
     "message": "Presets"
   },
+  "presetGuide": {
+    "message": "Suggestions"
+  },
   "presetSummaryLabel": {
-    "message": "📝 Summary"
+    "message": "Summary"
   },
   "presetSummaryPrompt": {
     "message": "Summarize the core content of this webpage clearly in 3 bullet points."
   },
   "presetReportLabel": {
-    "message": "📊 Report"
+    "message": "Report"
   },
   "presetReportPrompt": {
     "message": "Organize this design detail or work content into a formal report format (overview, content, expected effects)."
   },
   "presetEmailLabel": {
-    "message": "✉️ Email"
+    "message": "Email"
   },
   "presetEmailPrompt": {
     "message": "Based on this body content, write a polite and concise email reply draft."
   },
   "presetBugLabel": {
-    "message": "🔍 Bug Report"
+    "message": "Bug Report"
   },
   "presetBugPrompt": {
     "message": "Analyze the details of this webpage and organize them into a bug report format (reproduction steps, expected result) for development."

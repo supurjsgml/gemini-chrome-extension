@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
+import AppHeader from './components/AppHeader.vue'
+import LoginSection from './components/LoginSection.vue'
+import ModelSelector from './components/ModelSelector.vue'
+import SourceDashboard from './components/SourceDashboard.vue'
+import PromptSection from './components/PromptSection.vue'
+import ResultSection from './components/ResultSection.vue'
 
 interface ExtensionContent {
   selectedText: string
@@ -34,6 +40,13 @@ const directInputText = ref('')
 const statusMessage = ref('')
 const statusType = ref<'success' | 'error' | ''>('')
 
+// 소스 탭 전환 시 텍스트 실시간 비동기 갱신
+watch(contextSource, (newSource) => {
+  if (newSource === 'page' || newSource === 'selection') {
+    fetchPageContent()
+  }
+})
+
 // 구글 로그인 관련 세션 변수
 const userEmail = ref<string | null>(localStorage.getItem('userEmail'))
 const userToken = ref<string | null>(null)
@@ -59,6 +72,61 @@ const handleSystemThemeChange = (e: MediaQueryListEvent) => {
     applyTheme(e.matches)
   }
 }
+
+const showRawText = ref(false)
+
+const textMetrics = computed(() => {
+  const text = contextSource.value === 'selection' 
+    ? currentContext.value?.selectedText 
+    : currentContext.value?.pageText
+
+  if (!text) return { length: 0, words: 0, byteSize: '0 B', readTime: 0 }
+
+  const length = text.length
+  const words = text.trim().split(/\s+/).filter(Boolean).length
+
+  const encoder = new TextEncoder()
+  const bytes = encoder.encode(text).length
+  let byteSize = bytes + ' B'
+  if (bytes > 1024 * 1024) {
+    byteSize = (bytes / (1024 * 1024)).toFixed(1) + ' MB'
+  } else if (bytes > 1024) {
+    byteSize = (bytes / 1024).toFixed(1) + ' KB'
+  }
+
+  const readTime = Math.max(1, Math.ceil(length / 500))
+
+  return { length, words, byteSize, readTime }
+})
+
+const extractedKeywords = computed(() => {
+  const text = contextSource.value === 'selection' 
+    ? currentContext.value?.selectedText 
+    : currentContext.value?.pageText
+
+  if (!text) return []
+
+  const words = text.match(/[가-힣a-zA-Z0-9_]{2,10}/g) || []
+  const stopWords = new Set([
+    '이거', '저거', '그거', '하는', '한다', '있습니다', '있는', '대한', '위해', 
+    '그리고', '하지만', '또한', '에서', '으로', '하고', 'https', 'http', 'com',
+    '것은', '것을', '것이', '등을', '등의', '하여', '통해', '설정', '사용', '클릭'
+  ])
+  const freqMap: Record<string, number> = {}
+
+  words.forEach(word => {
+    const lower = word.toLowerCase()
+    if (!stopWords.has(lower) && isNaN(Number(lower))) {
+      freqMap[lower] = (freqMap[lower] || 0) + 1
+    }
+  })
+
+  return Object.entries(freqMap)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(entry => entry[0])
+})
+
 
 const presets = computed(() => [
   { label: $t('presetSummaryLabel'), prompt: $t('presetSummaryPrompt') },
@@ -132,8 +200,11 @@ const ensureContentScriptInjected = async (tabId: number): Promise<boolean> => {
     const tab = await chrome.tabs.get(tabId)
     if (tab && tab.url) {
       const url = tab.url
-      if (url.startsWith('chrome://') || url.startsWith('chrome-extension://') || url.startsWith('https://chromewebstore.google.com')) {
-        console.warn("크롬 보안 정책상 시스템 주소 또는 웹스토어에는 스크립트 주입이 불가합니다:", url)
+      // 일반 웹페이지(http/https)가 아닌 모든 시스템/보안 특수 페이지는 주입 불가로 차단
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        return false
+      }
+      if (url.startsWith('https://chromewebstore.google.com')) {
         return false
       }
     }
@@ -149,24 +220,44 @@ const ensureContentScriptInjected = async (tabId: number): Promise<boolean> => {
 }
 
 // 웹페이지 콘텐츠 정보 가져오기
-const fetchPageContent = async () => {
+const fetchPageContent = async (specificTabId?: number, retryCount = 0) => {
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
-    if (!tab || !tab.id) {
-      showStatus($t('noActiveTab'), "error")
-      return
+    let tabId = specificTabId
+    if (!tabId) {
+      const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
+      if (!tab || !tab.id) {
+        return
+      }
+      tabId = tab.id
     }
 
-    chrome.tabs.sendMessage(tab.id, { action: "getPageContent" }, async (response) => {
+    // 시스템 주소 가드 및 리셋
+    const currentTab = await chrome.tabs.get(tabId)
+    if (currentTab && currentTab.url) {
+      const url = currentTab.url
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        currentContext.value = null
+        return
+      }
+      if (url.startsWith('https://chromewebstore.google.com')) {
+        currentContext.value = null
+        return
+      }
+    }
+
+    chrome.tabs.sendMessage(tabId, { action: "getPageContent" }, async (response) => {
       if (chrome.runtime.lastError) {
-        // 통신 오류 감지 시 동적 주입 후 1회 재시도 시도
-        const injected = await ensureContentScriptInjected(tab.id!)
-        if (injected) {
+        // 통신 오류 감지 시 5회 한도로 스크립트 재주입 및 지연 재시도 (총 5초 대기)
+        if (retryCount < 5) {
+          const injected = await ensureContentScriptInjected(tabId!)
+          if (!injected) {
+            currentContext.value = null
+            return
+          }
           setTimeout(() => {
-            fetchPageContent()
-          }, 100)
+            fetchPageContent(tabId, retryCount + 1)
+          }, 1000)
         } else {
-          showStatus("크롬 시스템 페이지 또는 웹스토어에서는 텍스트 분석을 시작할 수 없습니다.", "error")
           currentContext.value = null
         }
         return
@@ -174,11 +265,10 @@ const fetchPageContent = async () => {
 
       if (response) {
         currentContext.value = response
-        contextSource.value = response.selectedText ? 'selection' : 'page'
       }
     })
   } catch (err: any) {
-    showStatus($t('failedToReadPage') + ": " + err.message, "error")
+    console.error("페이지 정보 획득 실패:", err)
   }
 }
 
@@ -225,14 +315,36 @@ const generateAIResult = async () => {
       })
     })
 
-    const body = await response.json()
-    if (body && body.success) {
-      resultText.value = body.data.result
-      isEditing.value = false
-      showStatus($t('generationSuccess'), "success")
-    } else {
-      showStatus(body?.message || $t('backendError'), "error")
+    if (!response.body) {
+      showStatus("응답 스트림을 수신할 수 없습니다.", "error")
+      isLoading.value = false
+      return
     }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder("utf-8")
+    resultText.value = ""
+    isEditing.value = false
+    isLoading.value = false
+
+    let hasError = false
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) break
+
+      const chunk = decoder.decode(value, { stream: true })
+      if (chunk.startsWith("ERROR:")) {
+        showStatus(chunk.substring(6).trim(), "error")
+        resultText.value = ""
+        hasError = true
+        break
+      }
+      resultText.value += chunk
+    }
+
+    if (hasError) return
+
+    showStatus($t('generationSuccess'), "success")
   } catch (err: any) {
     showStatus($t('serverConnectionFailed') + err.message, "error")
   } finally {
@@ -369,14 +481,14 @@ onMounted(() => {
   fetchPageContent()
 
   // 탭이 활성화되거나 변경될 때 자동으로 해당 페이지 콘텐츠 로드
-  chrome.tabs.onActivated.addListener(() => {
-    fetchPageContent()
+  chrome.tabs.onActivated.addListener((activeInfo) => {
+    fetchPageContent(activeInfo.tabId)
   })
 
   // 탭 내부의 페이지 로딩이 완료될 때 콘텐츠 다시 로드
-  chrome.tabs.onUpdated.addListener((_tabId, changeInfo, _tab) => {
+  chrome.tabs.onUpdated.addListener((tabId, changeInfo, _tab) => {
     if (changeInfo.status === 'complete') {
-      fetchPageContent()
+      fetchPageContent(tabId)
     }
   })
 
@@ -411,191 +523,33 @@ onUnmounted(() => {
 
 <template>
   <div class="app-container">
-    <!-- 헤더 영역 -->
-    <header class="header">
-      <div class="brand">
-        <div class="logo-glow"></div>
-        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" fill="url(#geminiGrad)" />
-          <defs>
-            <linearGradient id="geminiGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#8a2be2" />
-              <stop offset="50%" stop-color="#4169e1" />
-              <stop offset="100%" stop-color="#00ffff" />
-            </linearGradient>
-          </defs>
-        </svg>
-        <h1 class="title">Gemini Agent</h1>
-      </div>
-      <div class="header-actions">
-        <!-- 테마 토글 버튼 -->
-        <button @click="toggleTheme" class="theme-toggle-btn" :title="isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'">
-          <svg v-if="isDarkMode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="5"></circle>
-            <line x1="12" y1="1" x2="12" y2="3"></line>
-            <line x1="12" y1="21" x2="12" y2="23"></line>
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-            <line x1="1" y1="12" x2="3" y2="12"></line>
-            <line x1="21" y1="12" x2="23" y2="12"></line>
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-            <line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line>
-          </svg>
-          <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-          </svg>
-        </button>
-        <div class="status-badge" :class="connectionStatus">
-          <span class="pulse-dot"></span>
-          <span class="status-text">
-            {{ connectionStatus === 'connected' ? $t('statusConnected') : connectionStatus === 'error' ? $t('statusDisconnected') : $t('statusConnecting') }}
-          </span>
-        </div>
-        
-        <!-- 사용자 세션 & 로그아웃 -->
-        <div class="user-profile-badge" v-if="userEmail">
-          <span class="user-email" :title="userEmail">{{ userEmail.split('@')[0] }}</span>
-          <button @click="logout" class="logout-btn" title="로그아웃">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
-              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-              <polyline points="16 17 21 12 16 7"></polyline>
-              <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- 미로그인 상태 (구글 로그인 유도 화면) -->
-    <div v-if="!userEmail" class="login-container">
-      <div class="login-card">
-        <div class="logo-large-wrapper">
-          <div class="logo-glow-large"></div>
-          <svg class="logo-icon-large" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" fill="url(#geminiGradLarge)" />
-            <defs>
-              <linearGradient id="geminiGradLarge" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#8a2be2" />
-                <stop offset="50%" stop-color="#4169e1" />
-                <stop offset="100%" stop-color="#00ffff" />
-              </linearGradient>
-            </defs>
-          </svg>
-        </div>
-        <h2 class="welcome-title">Gemini AI Web Agent</h2>
-        <p class="welcome-desc">웹페이지를 실시간으로 요약 및 자동 작성하고, 일일 사용 한도를 안전하게 지원받기 위해 구글 로그인이 필요합니다.</p>
-        
-        <button class="login-btn" :disabled="isLoginLoading" @click="loginWithGoogle">
-          <span v-if="!isLoginLoading" class="login-btn-content">
-            <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-            </svg>
-            Google 계정으로 계속하기
-          </span>
-          <span v-else class="loader-container">
-            <span class="spinner"></span>
-            로그인 중...
-          </span>
-        </button>
-      </div>
-    </div>
+    <AppHeader 
+      :is-dark-mode="isDarkMode"
+      :connection-status="connectionStatus"
+      :user-email="userEmail"
+      @toggle-theme="toggleTheme"
+      @logout="logout"
+    />
 
     <!-- 로그인 완료 상태 (사이드패널 기능 활성화) -->
-    <main class="main-content" v-else>
-      <!-- 모델 선택 -->
-      <section class="section">
-        <label class="section-label">{{ $t('modelLabel') }}</label>
-        <div class="select-wrapper">
-          <select v-model="selectedModel" class="custom-select">
-            <option v-for="model in models" :key="model.id" :value="model.id">
-              {{ model.name }}
-            </option>
-          </select>
-          <div class="select-desc">
-            {{ models.find(m => m.id === selectedModel)?.desc }}
-          </div>
-        </div>
-      </section>
+    <main class="main-content" v-if="userEmail">
+      <ModelSelector 
+        v-model="selectedModel"
+        :models="models"
+      />
 
-      <!-- 컨텍스트 소스 범위 지정 -->
-      <section class="section">
-        <label class="section-label">{{ $t('sourceLabel') }}</label>
-        <div class="tab-group">
-          <button 
-            type="button" 
-            class="tab-btn" 
-            :class="{ active: contextSource === 'selection' }" 
-            :disabled="!currentContext?.selectedText"
-            @click="contextSource = 'selection'"
-          >
-            {{ $t('sourceSelection') }}
-          </button>
-          <button 
-            type="button" 
-            class="tab-btn" 
-            :class="{ active: contextSource === 'page' }" 
-            @click="contextSource = 'page'"
-          >
-            {{ $t('sourcePage') }}
-          </button>
-          <button 
-            type="button" 
-            class="tab-btn" 
-            :class="{ active: contextSource === 'direct' }" 
-            @click="contextSource = 'direct'"
-          >
-            {{ $t('sourceDirect') }}
-          </button>
-        </div>
+      <SourceDashboard 
+        v-model:context-source="contextSource"
+        v-model:direct-input-text="directInputText"
+        :current-context="currentContext"
+        :text-metrics="textMetrics"
+        :extracted-keywords="extractedKeywords"
+      />
 
-        <div v-if="contextSource === 'direct'" class="direct-input-wrapper">
-          <textarea 
-            v-model="directInputText" 
-            class="custom-textarea" 
-            style="margin-top: 10px; min-height: 90px;"
-            :placeholder="$t('directInputPlaceholder')"
-          ></textarea>
-        </div>
-        <div v-else class="context-preview">
-          <p class="preview-text" v-if="contextSource === 'selection' && currentContext?.selectedText">
-            "{{ currentContext.selectedText.substring(0, 120) }}{{ currentContext.selectedText.length > 120 ? '...' : '' }}"
-          </p>
-          <p class="preview-text text-muted" v-else-if="contextSource === 'selection' && !currentContext?.selectedText">
-            {{ $t('noSelectionText') }}
-          </p>
-          <p class="preview-text" v-else-if="currentContext?.pageText">
-            "{{ currentContext.pageText.substring(0, 120) }}{{ currentContext.pageText.length > 120 ? '...' : '' }}"
-          </p>
-          <p class="preview-text text-muted" v-else>
-            {{ $t('noPageText') }}
-          </p>
-        </div>
-      </section>
-
-      <!-- 프롬프트 지시사항 -->
-      <section class="section">
-        <label class="section-label">{{ $t('promptLabel') }}</label>
-        <textarea 
-          v-model="promptText" 
-          class="custom-textarea" 
-          :placeholder="$t('promptPlaceholder')"
-        ></textarea>
-        
-        <!-- 프리셋 선택 -->
-        <div class="preset-chips">
-          <button 
-            v-for="preset in presets" 
-            :key="preset.label" 
-            class="chip-btn"
-            @click="applyPreset(preset.prompt)"
-          >
-            {{ preset.label }}
-          </button>
-        </div>
-      </section>
+      <PromptSection 
+        v-model="promptText"
+        :presets="presets"
+      />
 
       <!-- 생성 버튼 -->
       <button 
@@ -610,39 +564,20 @@ onUnmounted(() => {
         </span>
       </button>
 
-      <!-- 결과 프리뷰 & 주입 기능 -->
-      <section class="section result-section" v-if="resultText || isLoading">
-        <div class="result-header">
-          <label class="section-label">{{ $t('resultPreviewLabel') }}</label>
-          <button 
-            v-if="resultText && !isLoading" 
-            class="edit-toggle-btn"
-            @click="isEditing = !isEditing"
-          >
-            {{ isEditing ? $t('editToggleDone') : $t('editToggleEdit') }}
-          </button>
-        </div>
-        
-        <div class="result-container" :class="{ loading: isLoading }">
-          <textarea 
-            v-if="isEditing" 
-            v-model="resultText" 
-            class="result-textarea"
-          ></textarea>
-          <div v-else class="result-display">
-            {{ resultText }}
-          </div>
-        </div>
-
-        <button 
-          v-if="resultText && !isLoading"
-          class="apply-btn" 
-          @click="applyToInput"
-        >
-          {{ $t('applyBtn') }}
-        </button>
-      </section>
+      <ResultSection 
+        v-model:result-text="resultText"
+        v-model:is-editing="isEditing"
+        :is-loading="isLoading"
+        @apply="applyToInput"
+      />
     </main>
+
+    <!-- 로그인 유도 레이아웃 -->
+    <LoginSection 
+      v-else
+      :is-login-loading="isLoginLoading"
+      @login="loginWithGoogle"
+    />
 
     <!-- 하단 상태 토스트 알림 -->
     <div class="toast" :class="statusType" v-if="statusMessage">

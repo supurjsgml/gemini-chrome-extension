@@ -3,6 +3,7 @@ node_modules/
 
 # 빌드 결과물
 dist/
+dist_dev/
 
 # 로그 파일
 npm-debug.log*
@@ -16,3 +17,4 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 manifest.json
+secrets.json

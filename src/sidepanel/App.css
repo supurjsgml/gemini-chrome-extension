@@ -111,15 +111,24 @@ body {
 
 .app-container {
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   background: radial-gradient(circle at top right, var(--bg-gradient-1), transparent 60%),
               radial-gradient(circle at bottom left, var(--bg-gradient-2), transparent 60%);
   padding: 16px;
   position: relative;
-  overflow-x: hidden;
+  overflow: hidden;
   transition: background 0.3s ease;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  margin-top: 4px;
+  padding-right: 2px;
 }
 
 /* 헤더 스타일 */
@@ -489,11 +498,21 @@ body {
   font-weight: 600;
 }
 
+.result-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 180px;
+  margin-bottom: 0;
+}
+
 .result-container {
   border: 1px dashed var(--border-result);
   border-radius: 8px;
   background-color: var(--bg-result);
-  min-height: 120px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   margin-bottom: 12px;
   transition: all 0.3s ease;
   overflow: hidden;
@@ -505,11 +524,12 @@ body {
   justify-content: center;
   background-color: rgba(255, 255, 255, 0.02);
   border-style: solid;
+  flex: 1;
 }
 
 .result-textarea {
   width: 100%;
-  min-height: 120px;
+  flex: 1;
   background: none;
   border: none;
   padding: 12px;
@@ -517,7 +537,7 @@ body {
   font-family: inherit;
   font-size: 13px;
   line-height: 1.6;
-  resize: vertical;
+  resize: none;
   outline: none;
   transition: color 0.3s ease;
 }
@@ -528,7 +548,7 @@ body {
   line-height: 1.6;
   color: var(--text-color);
   white-space: pre-wrap;
-  max-height: 250px;
+  flex: 1;
   overflow-y: auto;
   transition: color 0.3s ease;
 }
@@ -777,4 +797,329 @@ body {
 @keyframes logoGlowPulse {
   0% { transform: scale(0.9); opacity: calc(var(--logo-glow-opacity) - 0.1); }
   100% { transform: scale(1.1); opacity: calc(var(--logo-glow-opacity) + 0.15); }
+}
+
+/* 스마트 페이지 분석 대시보드 */
+.context-preview-dashboard {
+  margin-top: 10px;
+}
+
+.dashboard-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 14px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.light-theme .dashboard-card {
+  background: rgba(15, 23, 42, 0.02);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-color);
+}
+
+.site-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow: hidden;
+  flex: 1;
+  margin-right: 8px;
+}
+
+.active-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 6px #10b981;
+  flex-shrink: 0;
+  animation: pulse 2s infinite;
+}
+
+.site-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.data-size-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #10b981;
+  background-color: rgba(16, 185, 129, 0.1);
+  padding: 2px 6px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* 메트릭 그리드 */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  padding: 8px 4px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.light-theme .metric-item {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.metric-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.metric-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+/* 키워드 분석 섹션 */
+.keywords-section {
+  margin-bottom: 14px;
+}
+
+.section-subtitle {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+  letter-spacing: 0.3px;
+}
+
+.keyword-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.keyword-chip {
+  font-size: 10px;
+  font-weight: 600;
+  color: #a78bfa;
+  background: rgba(138, 43, 226, 0.08);
+  border: 1px solid rgba(138, 43, 226, 0.15);
+  padding: 3px 8px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+}
+
+.light-theme .keyword-chip {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.05);
+  border-color: rgba(124, 58, 237, 0.1);
+}
+
+.keyword-chip:hover {
+  transform: scale(1.03);
+  background: rgba(138, 43, 226, 0.15);
+  border-color: rgba(138, 43, 226, 0.3);
+}
+
+/* 아코디언 원본보기 섹션 */
+.accordion-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 8px;
+}
+
+.accordion-toggle-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  transition: color 0.2s ease;
+}
+
+.accordion-toggle-btn:hover {
+  color: var(--text-color);
+}
+
+.arrow-icon {
+  font-size: 8px;
+  transition: transform 0.25s ease;
+}
+
+.arrow-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.accordion-content.open {
+  max-height: 120px;
+  margin-top: 6px;
+}
+
+.raw-text-scroll {
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--text-muted);
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  padding: 8px;
+  max-height: 110px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.light-theme .raw-text-scroll {
+  background: rgba(15, 23, 42, 0.03);
+}
+
+/* 데이터 부재 알림 카드 */
+.no-data-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-preview);
+  border: 1px dashed var(--border-preview);
+  border-radius: 12px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.no-data-icon {
+  font-size: 20px;
+  margin-bottom: 6px;
+}
+
+/* AI 분석 대기 플레이스홀더 카드 */
+.result-placeholder-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.light-theme .result-placeholder-card {
+  background: rgba(15, 23, 42, 0.01);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.placeholder-glow {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(138, 43, 226, 0.12) 0%, transparent 70%);
+  filter: blur(15px);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: glowPulse 4s ease-in-out infinite alternate;
+}
+
+.placeholder-icon {
+  margin-bottom: 10px;
+  z-index: 1;
+  filter: drop-shadow(0 0 8px rgba(138, 43, 226, 0.3));
+  animation: floatIcon 3s ease-in-out infinite;
+}
+
+.placeholder-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-bottom: 4px;
+  z-index: 1;
+  letter-spacing: 0.5px;
+}
+
+.placeholder-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  max-width: 220px;
+  z-index: 1;
+}
+
+/* 추가 애니메이션 */
+@keyframes glowPulse {
+  0% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.9); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+}
+
+@keyframes floatIcon {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0px); }
+}
+
+/* 커스텀 스크롤바 얇은 디자인 */
+.main-content::-webkit-scrollbar,
+.raw-text-scroll::-webkit-scrollbar,
+.result-display::-webkit-scrollbar {
+  width: 4px;
+}
+
+.main-content::-webkit-scrollbar-track,
+.raw-text-scroll::-webkit-scrollbar-track,
+.result-display::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb,
+.raw-text-scroll::-webkit-scrollbar-thumb,
+.result-display::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover,
+.raw-text-scroll::-webkit-scrollbar-thumb:hover,
+.result-display::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
