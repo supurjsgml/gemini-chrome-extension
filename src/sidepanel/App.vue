@@ -357,7 +357,7 @@ const applyToInput = async () => {
   if (!resultText.value) return
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true })
+    const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true })
     if (!tab || !tab.id) {
       showStatus($t('noActiveTab'), "error")
       return

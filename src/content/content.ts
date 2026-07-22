@@ -8,9 +8,14 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.action === "injectText") {
     const text = message.text;
     const activeEl = document.activeElement as HTMLElement | null;
+    const isInput = activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement;
+    const isContentEditable = activeEl?.isContentEditable;
 
-    if (!activeEl) {
-      sendResponse({ success: false, error: "포커스된 입력창이 없습니다." });
+    if (!activeEl || (!isInput && !isContentEditable)) {
+      sendResponse({ 
+        success: false, 
+        error: "Focused input field not found. Please click on an input box or textarea on the webpage first to place your cursor, then click Autofill." 
+      });
       return;
     }
 

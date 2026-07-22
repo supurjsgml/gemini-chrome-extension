@@ -90,7 +90,7 @@
     "message": "Autofilled successfully into the focused input!"
   },
   "autofillNoFocus": {
-    "message": "Focused input field not found."
+    "message": "Focused input field not found. Please click on an input box or textarea on the webpage first to place your cursor, then click Autofill."
   },
   "injectionError": {
     "message": "Injection error: "
