@@ -23,6 +23,7 @@ interface GeminiModel {
   id: string
   name: string
   desc: string
+  isDefault?: boolean
 }
 
 defineProps<{

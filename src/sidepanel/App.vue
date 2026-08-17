@@ -17,6 +17,7 @@ interface GeminiModel {
   id: string
   name: string
   desc: string
+  isDefault?: boolean
 }
 
 // 다국어 번역 헬퍼 함수
@@ -28,7 +29,7 @@ const $t = (key: string): string => {
 }
 
 const models = ref<GeminiModel[]>([])
-const selectedModel = ref('gemini-3.5-flash')
+const selectedModel = ref(localStorage.getItem('selectedModel') || '')
 const promptText = ref('')
 const resultText = ref('')
 const isEditing = ref(false)
@@ -39,6 +40,13 @@ const contextSource = ref<'selection' | 'page' | 'direct'>('page')
 const directInputText = ref('')
 const statusMessage = ref('')
 const statusType = ref<'success' | 'error' | ''>('')
+
+// 모델 선택 변경 시 로컬 스토리지에 저장
+watch(selectedModel, (newModel) => {
+  if (newModel) {
+    localStorage.setItem('selectedModel', newModel)
+  }
+})
 
 // 소스 탭 전환 시 텍스트 실시간 비동기 갱신
 watch(contextSource, (newSource) => {
@@ -398,8 +406,9 @@ const fetchModels = async () => {
     const body = await response.json()
     if (body && body.success && body.data && body.data.length > 0) {
       models.value = body.data
-      const hasDefaultModel = body.data.some((m: GeminiModel) => m.id === 'gemini-3.5-flash')
-      selectedModel.value = hasDefaultModel ? 'gemini-3.5-flash' : body.data[0].id
+      const defaultModel = body.data.find((m: GeminiModel) => m.isDefault) || body.data[0]
+      const isSavedModelValid = body.data.some((m: GeminiModel) => m.id === selectedModel.value)
+      selectedModel.value = isSavedModelValid && selectedModel.value ? selectedModel.value : defaultModel.id
     } else {
       loadFallbackModels()
     }
@@ -411,11 +420,14 @@ const fetchModels = async () => {
 
 const loadFallbackModels = () => {
   models.value = [
-    { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', desc: '초고속 차세대 대형 언어 모델 (추천)' },
-    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Preview)', desc: '제미나이 3.1 고성능 분석 모델' },
-    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', desc: '안정적인 고속 분석 모델' }
+    { id: 'gemini-3.7-flash', name: 'Gemini 3.7 Flash', desc: '최신 하이브리드 추론 고속 모델 (추천)', isDefault: true },
+    { id: 'gemini-3.5-flash', name: 'Gemini 3.5 Flash', desc: '초고속 차세대 대형 언어 모델', isDefault: false },
+    { id: 'gemini-3.1-pro-preview', name: 'Gemini 3.1 Pro (Preview)', desc: '제미나이 3.1 고성능 분석 모델', isDefault: false },
+    { id: 'gemini-2.5-flash', name: 'Gemini 2.5 Flash', desc: '안정적인 고속 분석 모델', isDefault: false }
   ]
-  selectedModel.value = 'gemini-3.5-flash'
+  const defaultModel = models.value.find(m => m.isDefault) || models.value[0]
+  const isSavedModelValid = models.value.some(m => m.id === selectedModel.value)
+  selectedModel.value = isSavedModelValid && selectedModel.value ? selectedModel.value : defaultModel.id
 }
 
 // 스프링 백엔드 연결 상태 체크
