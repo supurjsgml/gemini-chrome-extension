@@ -280,6 +280,37 @@ const fetchPageContent = async (specificTabId?: number, retryCount = 0) => {
   }
 }
 
+// API 기본 및 폴백 엔드포인트 URL
+const PRIMARY_API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://guney-api.kro.kr'
+const FALLBACK_API_BASE_URL = import.meta.env.VITE_FALLBACK_API_BASE_URL || 'https://rest-api.ashysand-9f47a7e7.koreasouth.azurecontainerapps.io'
+
+// 500 에러를 제외한 에러 발생 시 ACA 컨테이너 본 주소로 폴백 호출하는 함수
+const fetchWithFallback = async (endpoint: string, options?: RequestInit): Promise<Response> => {
+  const primaryUrl = `${PRIMARY_API_BASE_URL}${endpoint}`
+  const fallbackUrl = `${FALLBACK_API_BASE_URL}${endpoint}`
+
+  let primaryResponse: Response | null = null
+  let primaryError: any = null
+
+  try {
+    primaryResponse = await fetch(primaryUrl, options)
+    if (primaryResponse.ok || primaryResponse.status === 500) {
+      return primaryResponse
+    }
+  } catch (err) {
+    primaryError = err
+  }
+
+  try {
+    return await fetch(fallbackUrl, options)
+  } catch (fallbackError) {
+    if (primaryResponse) {
+      return primaryResponse
+    }
+    throw fallbackError || primaryError
+  }
+}
+
 // 제미나이 API 호출 및 결과 생성
 const generateAIResult = async () => {
   if (contextSource.value !== 'direct' && !currentContext.value) {
@@ -313,7 +344,7 @@ const generateAIResult = async () => {
       headers["Authorization"] = `Bearer ${userToken.value}`
     }
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/gemini/summarize`, {
+    const response = await fetchWithFallback('/api/gemini/summarize', {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -322,6 +353,24 @@ const generateAIResult = async () => {
         model: selectedModel.value
       })
     })
+
+    if (!response.ok) {
+      let errorMsg = `요청 실패 (상태 코드: ${response.status})`
+      try {
+        const errJson = await response.json()
+        if (errJson?.message) {
+          errorMsg = errJson.message
+        }
+      } catch {
+        try {
+          const errText = await response.text()
+          if (errText) errorMsg = errText
+        } catch {}
+      }
+      showStatus(errorMsg, "error")
+      isLoading.value = false
+      return
+    }
 
     if (!response.body) {
       showStatus("응답 스트림을 수신할 수 없습니다.", "error")
@@ -402,7 +451,10 @@ const applyToInput = async () => {
 // 백엔드로부터 구글 Gemini 실시간 제공 모델 목록 조회
 const fetchModels = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/gemini/models`)
+    const response = await fetchWithFallback('/api/gemini/models')
+    if (!response.ok) {
+      throw new Error(`HTTP error: ${response.status}`)
+    }
     const body = await response.json()
     if (body && body.success && body.data && body.data.length > 0) {
       models.value = body.data
@@ -433,7 +485,7 @@ const loadFallbackModels = () => {
 // 스프링 백엔드 연결 상태 체크
 const checkBackendConnection = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/v3/api-docs`, { method: "GET" })
+    const response = await fetchWithFallback('/v3/api-docs', { method: "GET" })
     if (response.ok) {
       connectionStatus.value = 'connected'
     } else {
