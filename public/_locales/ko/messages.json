@@ -11,38 +11,212 @@
   "toggleAgent": {
     "message": "Gemini Agent 열기/닫기"
   },
+  "brandShortName": {
+    "message": "Gemini Agent"
+  },
+  "themeGroupLabel": {
+    "message": "테마 설정"
+  },
+  "themeSystem": {
+    "message": "시스템 설정"
+  },
+  "themeLight": {
+    "message": "라이트 모드"
+  },
+  "themeDark": {
+    "message": "다크 모드"
+  },
+  "statusConnecting": {
+    "message": "연결 중"
+  },
+  "statusConnected": {
+    "message": "서버 연결됨"
+  },
+  "statusDisconnected": {
+    "message": "오프라인"
+  },
+  "logoutBtn": {
+    "message": "로그아웃"
+  },
+  "loginWelcomeDesc": {
+    "message": "웹페이지를 실시간으로 요약 및 작성하고 일일 사용 한도를 안전하게 지원받기 위해 Google 로그인이 필요합니다."
+  },
+  "loginLoading": {
+    "message": "로그인 중..."
+  },
+  "loginWithGoogleBtn": {
+    "message": "Google 계정으로 계속하기"
+  },
+  "loginFailed": {
+    "message": "Google 로그인에 실패했습니다. 클라이언트 설정을 확인해 주세요."
+  },
+  "loginSuccess": {
+    "message": "로그인되었습니다."
+  },
+  "userInfoFailed": {
+    "message": "사용자 프로필 정보를 불러오지 못했습니다."
+  },
+  "logoutSuccess": {
+    "message": "로그아웃되었습니다."
+  },
   "modelLabel": {
-    "message": "AI 모델"
+    "message": "모델"
+  },
+  "fallbackModel37FlashDesc": {
+    "message": "최신 하이브리드 추론 고속 모델 (권장)"
+  },
+  "fallbackModel35FlashDesc": {
+    "message": "초고속 차세대 대형 언어 모델"
+  },
+  "fallbackModel31ProDesc": {
+    "message": "고성능 심층 분석 모델 (Preview)"
+  },
+  "fallbackModel25FlashDesc": {
+    "message": "안정적인 표준 고속 분석 모델"
   },
   "sourceLabel": {
-    "message": "분석 데이터 소스"
+    "message": "컨텍스트 소스"
+  },
+  "refreshSource": {
+    "message": "페이지 내용 새로고침"
   },
   "sourceSelection": {
-    "message": "선택된 텍스트"
+    "message": "선택 텍스트"
   },
   "sourcePage": {
-    "message": "전체 페이지 내용"
+    "message": "전체 페이지"
   },
   "sourceDirect": {
     "message": "직접 입력"
   },
   "directInputPlaceholder": {
-    "message": "여기에 분석할 텍스트를 직접 입력하거나 붙여넣으세요..."
+    "message": "분석할 텍스트를 직접 입력하거나 붙여넣으세요..."
+  },
+  "untitledPage": {
+    "message": "제목 없는 페이지"
+  },
+  "unitChars": {
+    "message": "자"
+  },
+  "unitWords": {
+    "message": "단어"
+  },
+  "unitMinutes": {
+    "message": "분 분량"
+  },
+  "keywordsTitle": {
+    "message": "주요 키워드"
+  },
+  "rawPreviewShow": {
+    "message": "원본 보기"
+  },
+  "rawPreviewHide": {
+    "message": "원본 접기"
+  },
+  "noSelectionText": {
+    "message": "선택된 텍스트가 없습니다. 웹페이지에서 텍스트를 드래그하거나 전체 페이지 모드를 선택하세요."
+  },
+  "noPageText": {
+    "message": "페이지 본문을 읽을 수 없습니다. 페이지를 새로고침하거나 직접 입력 모드를 사용하세요."
   },
   "promptLabel": {
-    "message": "작업 지시 (Prompt)"
+    "message": "작업 지시"
   },
   "promptPlaceholder": {
-    "message": "예: 이 설계를 보고서 형식으로 작성해줘"
+    "message": "지시사항을 입력하세요 (Ctrl+V로 이미지 첨부, Ctrl+Enter로 실행)"
+  },
+  "presetGuide": {
+    "message": "빠른 프리셋"
+  },
+  "presetSummaryLabel": {
+    "message": "핵심 요약"
+  },
+  "presetSummaryPrompt": {
+    "message": "이 내용의 핵심 요점을 3가지 항목으로 명확하게 요약해줘."
+  },
+  "presetReportLabel": {
+    "message": "보고서 작성"
+  },
+  "presetReportPrompt": {
+    "message": "이 내용을 공식 보고서 양식(개요, 주요 내용, 기대 효과)으로 정리해줘."
+  },
+  "presetEmailLabel": {
+    "message": "이메일 초안"
+  },
+  "presetEmailPrompt": {
+    "message": "이 내용을 바탕으로 정중하고 간결한 업무용 이메일 답장 초안을 작성해줘."
+  },
+  "presetBugLabel": {
+    "message": "버그 리포트"
+  },
+  "presetBugPrompt": {
+    "message": "이 내용을 분석하여 개발용 버그 리포트 양식(현상, 재현 경로, 기대 결과)으로 정리해줘."
+  },
+  "captureScreenBtn": {
+    "message": "화면 캡처"
+  },
+  "capturingState": {
+    "message": "캡처 중..."
+  },
+  "captureTooltipActive": {
+    "message": "현재 보고 있는 탭 화면을 캡처하여 첨부합니다"
+  },
+  "captureRestrictedUrl": {
+    "message": "브라우저 시스템 페이지나 웹스토어 화면은 캡처할 수 없습니다."
+  },
+  "captureSuccess": {
+    "message": "현재 탭 화면이 첨부되었습니다."
+  },
+  "captureFailed": {
+    "message": "화면 캡처에 실패했습니다: "
+  },
+  "pasteImageSuccess": {
+    "message": "클립보드 이미지가 첨부되었습니다."
+  },
+  "pasteImageFailed": {
+    "message": "이미지 처리에 실패했습니다: "
+  },
+  "maxAttachmentsReached": {
+    "message": "이미지는 최대 $1장까지 첨부할 수 있습니다."
+  },
+  "attachmentSourceCapture": {
+    "message": "화면 캡처"
+  },
+  "attachmentSourceClipboard": {
+    "message": "클립보드"
+  },
+  "removeAttachment": {
+    "message": "첨부 삭제"
+  },
+  "clearAllAttachments": {
+    "message": "전체 비우기"
+  },
+  "previewImageTitle": {
+    "message": "첨부 이미지 확대 보기"
+  },
+  "closePreviewModal": {
+    "message": "닫기"
   },
   "generateBtn": {
-    "message": "AI 분석 및 생성"
+    "message": "분석 및 생성"
   },
   "generatingState": {
     "message": "분석 중..."
   },
   "resultPreviewLabel": {
-    "message": "AI 요약 결과 프리뷰"
+    "message": "분석 결과"
+  },
+  "streamingPlaceholder": {
+    "message": "응답을 생성하고 있습니다..."
+  },
+  "copyBtn": {
+    "message": "복사"
+  },
+  "copiedState": {
+    "message": "복사됨"
+  },
+  "copyFailed": {
+    "message": "클립보드 복사에 실패했습니다."
   },
   "editToggleEdit": {
     "message": "수정"
@@ -51,84 +225,45 @@
     "message": "완료"
   },
   "applyBtn": {
-    "message": "포커스된 입력창에 자동 입력"
+    "message": "포커스된 입력창에 적용"
   },
-  "statusConnecting": {
-    "message": "Connecting"
+  "resultEmptyTitle": {
+    "message": "분석 대기 중"
   },
-  "statusConnected": {
-    "message": "Connected"
-  },
-  "statusDisconnected": {
-    "message": "Disconnected"
+  "resultEmptyDesc": {
+    "message": "컨텍스트 소스를 선택하거나 화면을 캡처한 뒤 분석 및 생성을 실행하세요."
   },
   "noActiveTab": {
     "message": "활성화된 탭을 찾을 수 없습니다."
   },
-  "failedToReadPage": {
-    "message": "페이지 정보를 읽어오지 못했습니다. 페이지 새로고침이 필요할 수 있습니다."
-  },
-  "noTextToAnalyze": {
-    "message": "분석할 텍스트 내용이 없습니다."
+  "noInputToAnalyze": {
+    "message": "분석할 텍스트나 첨부된 이미지가 없습니다."
   },
   "analyzingProgress": {
-    "message": "제미나이 분석 진행 중..."
+    "message": "분석을 진행하고 있습니다..."
   },
   "generationSuccess": {
-    "message": "텍스트 생성 성공!"
+    "message": "분석이 완료되었습니다."
   },
-  "backendError": {
-    "message": "백엔드 분석 중 오류가 발생했습니다."
+  "requestFailedWithStatus": {
+    "message": "요청 처리에 실패했습니다 (상태 코드: $1)"
+  },
+  "streamUnavailable": {
+    "message": "응답 스트림을 수신할 수 없습니다."
   },
   "serverConnectionFailed": {
-    "message": "서버 통신 실패: "
-  },
-  "injectionFailed": {
-    "message": "텍스트 주입 실패: content script 오류"
+    "message": "서버 통신 오류: "
   },
   "autofillSuccess": {
-    "message": "포커스된 입력창에 자동 적용되었습니다!"
+    "message": "포커스된 입력창에 텍스트가 적용되었습니다."
   },
   "autofillNoFocus": {
-    "message": "포커스된 입력 필드를 찾을 수 없습니다. 먼저 웹페이지의 입력 필드나 텍스트 영역을 클릭해 커서를 두신 후 자동 입력을 눌러주세요."
+    "message": "웹페이지에서 입력할 텍스트 필드를 먼저 클릭한 뒤 다시 시도해 주세요."
+  },
+  "autofillRestrictedUrl": {
+    "message": "브라우저 시스템 페이지나 웹스토어에는 자동 입력을 지원하지 않습니다."
   },
   "injectionError": {
-    "message": "주입 오류: "
-  },
-  "noSelectionText": {
-    "message": "드래그한 텍스트가 없습니다. 전체 페이지 모드를 사용해 보세요."
-  },
-  "noPageText": {
-    "message": "가져온 페이지 내용이 없습니다. 페이지를 새로고침하거나 직접 입력을 이용해 보세요."
-  },
-  "presetChips": {
-    "message": "프리셋 선택"
-  },
-  "presetGuide": {
-    "message": "추천 예시"
-  },
-  "presetSummaryLabel": {
-    "message": "핵심 요약"
-  },
-  "presetSummaryPrompt": {
-    "message": "이 웹페이지의 핵심 내용을 3가지 항목으로 명확하게 요약해줘."
-  },
-  "presetReportLabel": {
-    "message": "보고서 작성"
-  },
-  "presetReportPrompt": {
-    "message": "이 설계 내역 또는 업무 내용을 공식 보고서 양식(개요, 내용, 기대효과)으로 정리해줘."
-  },
-  "presetEmailLabel": {
-    "message": "이메일 작성"
-  },
-  "presetEmailPrompt": {
-    "message": "이 본문 내용을 바탕으로 정중하고 핵심을 전달하는 이메일 답장 초안을 작성해줘."
-  },
-  "presetBugLabel": {
-    "message": "버그 리포트"
-  },
-  "presetBugPrompt": {
-    "message": "이 웹페이지의 세부 정보를 분석하여 개발용 버그 리포트 양식(재현 경로, 예상 결과)으로 정리해줘."
+    "message": "텍스트 적용 오류: "
   }
 }

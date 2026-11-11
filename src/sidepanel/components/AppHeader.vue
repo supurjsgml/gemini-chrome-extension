@@ -1,56 +1,90 @@
 <template>
   <header class="header">
     <div class="brand">
-      <div class="logo-glow"></div>
-      <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" fill="url(#geminiGrad)" />
-        <defs>
-          <linearGradient id="geminiGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stop-color="#8a2be2" />
-            <stop offset="50%" stop-color="#4169e1" />
-            <stop offset="100%" stop-color="#00ffff" />
-          </linearGradient>
-        </defs>
-      </svg>
-      <h1 class="title">Gemini Agent</h1>
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="4" />
+          <path d="M9 9h6" />
+          <path d="M9 13h6" />
+          <path d="M9 17h4" />
+        </svg>
+      </span>
+      <h1 class="brand-title">{{ $t('brandShortName') }}</h1>
+      <span class="status-indicator" :class="connectionStatus" :title="statusLabel">
+        <span class="status-dot"></span>
+        <span v-if="connectionStatus === 'error'" class="status-offline-text">{{ statusLabel }}</span>
+      </span>
     </div>
 
     <div class="header-actions">
-      <button 
-        @click="$emit('toggle-theme')" 
-        class="theme-toggle-btn"
-        :title="isDarkMode ? '라이트 모드로 전환' : '다크 모드로 전환'"
-      >
-        <svg v-if="isDarkMode" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="4.22" x2="19.78" y2="5.64"></line>
-        </svg>
-        <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      </button>
-
-      <div class="status-badge" :class="connectionStatus">
-        <span class="pulse-dot"></span>
-        <span class="status-text">
-          {{ connectionStatus === 'connected' ? $t('statusConnected') : connectionStatus === 'error' ? $t('statusDisconnected') : $t('statusConnecting') }}
-        </span>
+      <div class="theme-segment" role="radiogroup" :aria-label="$t('themeGroupLabel')">
+        <button
+          type="button"
+          role="radio"
+          class="theme-segment-btn"
+          :class="{ active: themeMode === 'system' }"
+          :aria-checked="themeMode === 'system'"
+          :title="$t('themeSystem')"
+          :aria-label="$t('themeSystem')"
+          @click="$emit('update:themeMode', 'system')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="3" width="20" height="14" rx="2" />
+            <line x1="8" y1="21" x2="16" y2="21" />
+            <line x1="12" y1="17" x2="12" y2="21" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          role="radio"
+          class="theme-segment-btn"
+          :class="{ active: themeMode === 'light' }"
+          :aria-checked="themeMode === 'light'"
+          :title="$t('themeLight')"
+          :aria-label="$t('themeLight')"
+          @click="$emit('update:themeMode', 'light')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2" />
+            <path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" />
+            <path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" />
+            <path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" />
+            <path d="m19.07 4.93-1.41 1.41" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          role="radio"
+          class="theme-segment-btn"
+          :class="{ active: themeMode === 'dark' }"
+          :aria-checked="themeMode === 'dark'"
+          :title="$t('themeDark')"
+          :aria-label="$t('themeDark')"
+          @click="$emit('update:themeMode', 'dark')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+          </svg>
+        </button>
       </div>
 
-      <div class="user-profile-badge" v-if="userEmail">
+      <div v-if="userEmail" class="user-profile-badge">
         <span class="user-email" :title="userEmail">{{ userEmail.split('@')[0] }}</span>
-        <button @click="$emit('logout')" class="logout-btn" title="로그아웃">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
+        <button
+          type="button"
+          class="logout-btn"
+          :title="$t('logoutBtn')"
+          :aria-label="$t('logoutBtn')"
+          @click="$emit('logout')"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="logout-icon">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
           </svg>
         </button>
       </div>
@@ -59,21 +93,24 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  isDarkMode: boolean
+import { computed } from 'vue'
+import type { ThemeMode } from '../composables/useTheme'
+import { $t } from '../utils/i18n'
+
+const props = defineProps<{
+  themeMode: ThemeMode
   connectionStatus: 'connecting' | 'connected' | 'error'
   userEmail: string | null
 }>()
 
 defineEmits<{
-  (e: 'toggle-theme'): void
+  (e: 'update:themeMode', mode: ThemeMode): void
   (e: 'logout'): void
 }>()
 
-const $t = (key: string): string => {
-  if (typeof chrome !== 'undefined' && chrome.i18n) {
-    return chrome.i18n.getMessage(key) || key
-  }
-  return key
-}
+const statusLabel = computed(() => {
+  if (props.connectionStatus === 'connected') return $t('statusConnected')
+  if (props.connectionStatus === 'error') return $t('statusDisconnected')
+  return $t('statusConnecting')
+})
 </script>

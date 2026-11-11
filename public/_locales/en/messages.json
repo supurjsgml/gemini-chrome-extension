@@ -11,47 +11,20 @@
   "toggleAgent": {
     "message": "Open/Close Gemini Agent"
   },
-  "modelLabel": {
-    "message": "AI Model"
+  "brandShortName": {
+    "message": "Gemini Agent"
   },
-  "sourceLabel": {
-    "message": "Analysis Data Source"
+  "themeGroupLabel": {
+    "message": "Theme"
   },
-  "sourceSelection": {
-    "message": "Selected Text"
+  "themeSystem": {
+    "message": "System"
   },
-  "sourcePage": {
-    "message": "Entire Page Content"
+  "themeLight": {
+    "message": "Light"
   },
-  "sourceDirect": {
-    "message": "Direct Input"
-  },
-  "directInputPlaceholder": {
-    "message": "Type or paste the text to analyze here..."
-  },
-  "promptLabel": {
-    "message": "Instruction (Prompt)"
-  },
-  "promptPlaceholder": {
-    "message": "e.g. Write this design in a report format"
-  },
-  "generateBtn": {
-    "message": "AI Analyze & Generate"
-  },
-  "generatingState": {
-    "message": "Analyzing..."
-  },
-  "resultPreviewLabel": {
-    "message": "AI Summary Result Preview"
-  },
-  "editToggleEdit": {
-    "message": "Edit"
-  },
-  "editToggleDone": {
-    "message": "Done"
-  },
-  "applyBtn": {
-    "message": "Autofill Focused Input"
+  "themeDark": {
+    "message": "Dark"
   },
   "statusConnecting": {
     "message": "Connecting"
@@ -60,75 +33,237 @@
     "message": "Connected"
   },
   "statusDisconnected": {
-    "message": "Disconnected"
+    "message": "Offline"
   },
-  "noActiveTab": {
-    "message": "Active tab not found."
+  "logoutBtn": {
+    "message": "Sign out"
   },
-  "failedToReadPage": {
-    "message": "Failed to read page content. Page reload might be required."
+  "loginWelcomeDesc": {
+    "message": "Sign in with Google to analyze webpages, autofill inputs, and manage your daily usage quota."
   },
-  "noTextToAnalyze": {
-    "message": "No text to analyze."
+  "loginLoading": {
+    "message": "Signing in..."
   },
-  "analyzingProgress": {
-    "message": "Gemini analysis in progress..."
+  "loginWithGoogleBtn": {
+    "message": "Continue with Google"
   },
-  "generationSuccess": {
-    "message": "Text generated successfully!"
+  "loginFailed": {
+    "message": "Google sign-in failed. Please check your client configuration."
   },
-  "backendError": {
-    "message": "Error occurred during backend analysis."
+  "loginSuccess": {
+    "message": "Signed in successfully."
   },
-  "serverConnectionFailed": {
-    "message": "Server communication failed: "
+  "userInfoFailed": {
+    "message": "Failed to retrieve user profile information."
   },
-  "injectionFailed": {
-    "message": "Text injection failed: content script error"
+  "logoutSuccess": {
+    "message": "Signed out."
   },
-  "autofillSuccess": {
-    "message": "Autofilled successfully into the focused input!"
+  "modelLabel": {
+    "message": "Model"
   },
-  "autofillNoFocus": {
-    "message": "Focused input field not found. Please click on an input box or textarea on the webpage first to place your cursor, then click Autofill."
+  "fallbackModel37FlashDesc": {
+    "message": "Latest hybrid reasoning fast model (Recommended)"
   },
-  "injectionError": {
-    "message": "Injection error: "
+  "fallbackModel35FlashDesc": {
+    "message": "Ultra-fast next-gen language model"
+  },
+  "fallbackModel31ProDesc": {
+    "message": "High-precision deep analysis model (Preview)"
+  },
+  "fallbackModel25FlashDesc": {
+    "message": "Reliable standard fast analysis model"
+  },
+  "sourceLabel": {
+    "message": "Context Source"
+  },
+  "refreshSource": {
+    "message": "Refresh page content"
+  },
+  "sourceSelection": {
+    "message": "Selection"
+  },
+  "sourcePage": {
+    "message": "Full Page"
+  },
+  "sourceDirect": {
+    "message": "Direct Input"
+  },
+  "directInputPlaceholder": {
+    "message": "Type or paste the text to analyze here..."
+  },
+  "untitledPage": {
+    "message": "Untitled Page"
+  },
+  "unitChars": {
+    "message": " chars"
+  },
+  "unitWords": {
+    "message": " words"
+  },
+  "unitMinutes": {
+    "message": " min read"
+  },
+  "keywordsTitle": {
+    "message": "Key Topics"
+  },
+  "rawPreviewShow": {
+    "message": "View raw"
+  },
+  "rawPreviewHide": {
+    "message": "Hide raw"
   },
   "noSelectionText": {
-    "message": "No text selected. Try Entire Page mode."
+    "message": "No text selected. Highlight text on the webpage or switch to Full Page mode."
   },
   "noPageText": {
-    "message": "No page content retrieved. Try reloading the page or using Direct Input."
+    "message": "Unable to read page content. Reload the tab or use Direct Input mode."
   },
-  "presetChips": {
-    "message": "Presets"
+  "promptLabel": {
+    "message": "Prompt"
+  },
+  "promptPlaceholder": {
+    "message": "Enter instructions (Ctrl+V to attach image, Ctrl+Enter to run)"
   },
   "presetGuide": {
-    "message": "Suggestions"
+    "message": "Quick Presets"
   },
   "presetSummaryLabel": {
     "message": "Summary"
   },
   "presetSummaryPrompt": {
-    "message": "Summarize the core content of this webpage clearly in 3 bullet points."
+    "message": "Summarize the core points clearly in 3 bullet items."
   },
   "presetReportLabel": {
     "message": "Report"
   },
   "presetReportPrompt": {
-    "message": "Organize this design detail or work content into a formal report format (overview, content, expected effects)."
+    "message": "Organize this content into a formal report format (Overview, Details, Expected Impact)."
   },
   "presetEmailLabel": {
     "message": "Email"
   },
   "presetEmailPrompt": {
-    "message": "Based on this body content, write a polite and concise email reply draft."
+    "message": "Write a polite and concise business email reply draft based on this content."
   },
   "presetBugLabel": {
     "message": "Bug Report"
   },
   "presetBugPrompt": {
-    "message": "Analyze the details of this webpage and organize them into a bug report format (reproduction steps, expected result) for development."
+    "message": "Analyze this content and format it as a developer bug report (Issue, Steps to Reproduce, Expected Result)."
+  },
+  "captureScreenBtn": {
+    "message": "Capture Tab"
+  },
+  "capturingState": {
+    "message": "Capturing..."
+  },
+  "captureTooltipActive": {
+    "message": "Capture the currently visible tab viewport"
+  },
+  "captureRestrictedUrl": {
+    "message": "Browser system pages and Chrome Web Store cannot be captured."
+  },
+  "captureSuccess": {
+    "message": "Current tab screenshot attached."
+  },
+  "captureFailed": {
+    "message": "Screen capture failed: "
+  },
+  "pasteImageSuccess": {
+    "message": "Clipboard image attached."
+  },
+  "pasteImageFailed": {
+    "message": "Failed to process image: "
+  },
+  "maxAttachmentsReached": {
+    "message": "You can attach up to $1 images."
+  },
+  "attachmentSourceCapture": {
+    "message": "Tab Capture"
+  },
+  "attachmentSourceClipboard": {
+    "message": "Clipboard"
+  },
+  "removeAttachment": {
+    "message": "Remove image"
+  },
+  "clearAllAttachments": {
+    "message": "Clear all"
+  },
+  "previewImageTitle": {
+    "message": "Preview attached image"
+  },
+  "closePreviewModal": {
+    "message": "Close"
+  },
+  "generateBtn": {
+    "message": "Run Analysis"
+  },
+  "generatingState": {
+    "message": "Analyzing..."
+  },
+  "resultPreviewLabel": {
+    "message": "Result"
+  },
+  "streamingPlaceholder": {
+    "message": "Generating response..."
+  },
+  "copyBtn": {
+    "message": "Copy"
+  },
+  "copiedState": {
+    "message": "Copied"
+  },
+  "copyFailed": {
+    "message": "Failed to copy to clipboard."
+  },
+  "editToggleEdit": {
+    "message": "Edit"
+  },
+  "editToggleDone": {
+    "message": "Done"
+  },
+  "applyBtn": {
+    "message": "Insert into Focused Input"
+  },
+  "resultEmptyTitle": {
+    "message": "Ready to Analyze"
+  },
+  "resultEmptyDesc": {
+    "message": "Select a context source or attach a screenshot, then run analysis."
+  },
+  "noActiveTab": {
+    "message": "No active tab found."
+  },
+  "noInputToAnalyze": {
+    "message": "No text or attached image to analyze."
+  },
+  "analyzingProgress": {
+    "message": "Running Gemini analysis..."
+  },
+  "generationSuccess": {
+    "message": "Analysis completed."
+  },
+  "requestFailedWithStatus": {
+    "message": "Request failed (status code: $1)"
+  },
+  "streamUnavailable": {
+    "message": "Unable to read response stream."
+  },
+  "serverConnectionFailed": {
+    "message": "Server connection error: "
+  },
+  "autofillSuccess": {
+    "message": "Inserted into the focused input field."
+  },
+  "autofillNoFocus": {
+    "message": "Click an input or textarea on the webpage first, then try again."
+  },
+  "autofillRestrictedUrl": {
+    "message": "Autofill is not available on browser system pages or Chrome Web Store."
+  },
+  "injectionError": {
+    "message": "Text insertion error: "
   }
 }

@@ -1,106 +1,126 @@
 <template>
   <section class="section">
-    <label class="section-label">{{ $t('sourceLabel') }}</label>
-    <div class="tab-group">
-      <button 
-        type="button" 
-        class="tab-btn" 
-        :class="{ active: contextSource === 'selection' }" 
+    <div class="section-header-row">
+      <label class="section-label">{{ $t('sourceLabel') }}</label>
+      <button
+        v-if="contextSource !== 'direct'"
+        type="button"
+        class="text-icon-btn"
+        :title="$t('refreshSource')"
+        :aria-label="$t('refreshSource')"
+        @click="$emit('refresh')"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+          <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+          <path d="M16 16h5v5" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="tab-group" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        :class="{ active: contextSource === 'selection' }"
+        :aria-selected="contextSource === 'selection'"
         :disabled="!currentContext?.selectedText"
         @click="$emit('update:contextSource', 'selection')"
       >
         {{ $t('sourceSelection') }}
       </button>
-      <button 
-        type="button" 
-        class="tab-btn" 
-        :class="{ active: contextSource === 'page' }" 
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        :class="{ active: contextSource === 'page' }"
+        :aria-selected="contextSource === 'page'"
         @click="$emit('update:contextSource', 'page')"
       >
         {{ $t('sourcePage') }}
       </button>
-      <button 
-        type="button" 
-        class="tab-btn" 
-        :class="{ active: contextSource === 'direct' }" 
+      <button
+        type="button"
+        role="tab"
+        class="tab-btn"
+        :class="{ active: contextSource === 'direct' }"
+        :aria-selected="contextSource === 'direct'"
         @click="$emit('update:contextSource', 'direct')"
       >
         {{ $t('sourceDirect') }}
       </button>
     </div>
 
-    <!-- 직접 입력 탭 -->
     <div v-if="contextSource === 'direct'" class="direct-input-wrapper">
-      <textarea 
-        :value="directInputText" 
-        @input="$emit('update:directInputText', ($event.target as HTMLTextAreaElement).value)" 
-        class="custom-textarea" 
-        style="margin-top: 10px; min-height: 90px;"
+      <textarea
+        :value="directInputText"
+        class="custom-textarea direct-textarea"
         :placeholder="$t('directInputPlaceholder')"
+        @input="$emit('update:directInputText', ($event.target as HTMLTextAreaElement).value)"
       ></textarea>
     </div>
 
-    <!-- 스마트 대시보드 탭 -->
-    <div v-else class="context-preview-dashboard">
-      <div class="dashboard-card" v-if="(contextSource === 'selection' && currentContext?.selectedText) || (contextSource === 'page' && currentContext?.pageText)">
-        <div class="card-header">
+    <div v-else class="context-summary-wrapper">
+      <div v-if="hasActiveText" class="context-card">
+        <div class="context-summary-bar">
           <div class="site-info">
-            <span class="active-dot"></span>
-            <span class="site-title">{{ currentContext?.title || 'Web Page' }}</span>
+            <svg class="context-doc-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
+              <polyline points="14 2 14 8 20 8" />
+            </svg>
+            <span class="site-title" :title="currentContext?.title || $t('untitledPage')">
+              {{ currentContext?.title || $t('untitledPage') }}
+            </span>
           </div>
-          <div class="data-size-badge">{{ textMetrics.byteSize }}</div>
+          <span class="data-size-badge">{{ textMetrics.byteSize }}</span>
         </div>
 
-        <div class="metrics-grid">
-          <div class="metric-item">
-            <span class="metric-label">글자 수</span>
-            <span class="metric-value">{{ textMetrics.length }}자</span>
+        <div class="context-meta-row">
+          <div class="inline-metrics">
+            <span>{{ textMetrics.length.toLocaleString() }}{{ $t('unitChars') }}</span>
+            <span class="meta-dot" aria-hidden="true"></span>
+            <span>{{ textMetrics.words.toLocaleString() }}{{ $t('unitWords') }}</span>
+            <span class="meta-dot" aria-hidden="true"></span>
+            <span>{{ textMetrics.readTime }}{{ $t('unitMinutes') }}</span>
           </div>
-          <div class="metric-item">
-            <span class="metric-label">단어 수</span>
-            <span class="metric-value">{{ textMetrics.words }}개</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">읽기 시간</span>
-            <span class="metric-value">{{ textMetrics.readTime }}분</span>
-          </div>
+
+          <button
+            type="button"
+            class="raw-toggle-btn"
+            :aria-expanded="showRawText"
+            @click="showRawText = !showRawText"
+          >
+            <span>{{ showRawText ? $t('rawPreviewHide') : $t('rawPreviewShow') }}</span>
+            <svg class="chevron-icon" :class="{ rotated: showRawText }" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
         </div>
 
-        <div class="keywords-section" v-if="extractedKeywords.length > 0">
-          <div class="section-subtitle">주요 토픽 분석</div>
+        <div v-if="extractedKeywords.length > 0" class="keyword-row">
+          <span class="keyword-label">{{ $t('keywordsTitle') }}</span>
           <div class="keyword-chips">
             <span v-for="keyword in extractedKeywords" :key="keyword" class="keyword-chip">
-              # {{ keyword }}
+              {{ keyword }}
             </span>
           </div>
         </div>
 
-        <div class="accordion-section">
-          <button 
-            type="button" 
-            class="accordion-toggle-btn"
-            @click="showRawText = !showRawText"
-          >
-            <span>📄 원본 내용 미리보기</span>
-            <span class="arrow-icon" :class="{ rotated: showRawText }">▼</span>
-          </button>
-          
-          <div class="accordion-content" :class="{ open: showRawText }">
-            <div class="raw-text-scroll">
-              {{ contextSource === 'selection' ? currentContext?.selectedText : currentContext?.pageText }}
-            </div>
-          </div>
+        <div v-if="showRawText" class="raw-preview-drawer">
+          <div class="raw-text-scroll">{{ activeRawText }}</div>
         </div>
       </div>
 
-      <!-- 데이터 소스 부재 시 에러/가이드 메시지 -->
-      <div class="no-data-card" v-else>
-        <div class="no-data-icon">⚠️</div>
-        <p class="preview-text text-muted" v-if="contextSource === 'selection'">
-          {{ $t('noSelectionText') }}
-        </p>
-        <p class="preview-text text-muted" v-else>
-          {{ $t('noPageText') }}
+      <div v-else class="no-data-card">
+        <svg class="no-data-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <p class="no-data-text">
+          {{ contextSource === 'selection' ? $t('noSelectionText') : $t('noPageText') }}
         </p>
       </div>
     </div>
@@ -108,15 +128,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, computed } from 'vue'
+import { $t } from '../utils/i18n'
 
-interface ExtensionContent {
+export interface ExtensionContent {
   selectedText: string
   pageText: string
   title: string
 }
 
-interface TextMetrics {
+export interface TextMetrics {
   length: number
   words: number
   byteSize: string
@@ -134,40 +155,17 @@ const props = defineProps<{
 defineEmits<{
   (e: 'update:contextSource', value: 'selection' | 'page' | 'direct'): void
   (e: 'update:directInputText', value: string): void
+  (e: 'refresh'): void
 }>()
 
 const showRawText = ref(false)
 
-// 내용 수집 시 아코디언 자동 열림 감시자
-watch(
-  () => props.currentContext,
-  (newContext) => {
-    if (newContext) {
-      const text = props.contextSource === 'selection' ? newContext.selectedText : newContext.pageText
-      if (text && text.trim().length > 0) {
-        showRawText.value = true
-      }
-    }
-  },
-  { immediate: true, deep: true }
-)
+const activeRawText = computed(() => {
+  if (!props.currentContext) return ''
+  return props.contextSource === 'selection'
+    ? props.currentContext.selectedText
+    : props.currentContext.pageText
+})
 
-watch(
-  () => props.contextSource,
-  (newSource) => {
-    if (props.currentContext) {
-      const text = newSource === 'selection' ? props.currentContext.selectedText : props.currentContext.pageText
-      if (text && text.trim().length > 0) {
-        showRawText.value = true
-      }
-    }
-  }
-)
-
-const $t = (key: string): string => {
-  if (typeof chrome !== 'undefined' && chrome.i18n) {
-    return chrome.i18n.getMessage(key) || key
-  }
-  return key
-}
+const hasActiveText = computed(() => Boolean(activeRawText.value && activeRawText.value.trim().length > 0))
 </script>
